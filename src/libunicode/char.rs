@@ -463,9 +463,11 @@ impl CharExt for char {
 
 /// An iterator over the lowercase mapping of a given character, returned from
 /// the `lowercase` method on characters.
+#[cfg(stage0)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct ToLowercase(Option<char>);
 
+#[cfg(stage0)]
 #[stable(feature = "rust1", since = "1.0.0")]
 impl Iterator for ToLowercase {
     type Item = char;
@@ -474,9 +476,11 @@ impl Iterator for ToLowercase {
 
 /// An iterator over the uppercase mapping of a given character, returned from
 /// the `uppercase` method on characters.
+#[cfg(stage0)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct ToUppercase(Option<char>);
 
+#[cfg(stage0)]
 #[stable(feature = "rust1", since = "1.0.0")]
 impl Iterator for ToUppercase {
     type Item = char;
