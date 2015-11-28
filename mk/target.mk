@@ -73,6 +73,8 @@ $(foreach host,$(CFG_HOST), \
 # $(4) is the crate name
 define RUST_TARGET_STAGE_N
 
+build-stage$(1)-$(4): $$(TLIB$(1)_T_$(2)_H_$(3))/stamp.$(4)
+
 $$(TLIB$(1)_T_$(2)_H_$(3))/stamp.$(4): CFG_COMPILER_HOST_TRIPLE = $(2)
 $$(TLIB$(1)_T_$(2)_H_$(3))/stamp.$(4): \
 		$$(CRATEFILE_$(4)) \
