@@ -53,6 +53,7 @@
 # are a few ideas.
 #
 #   * docs - Build gobs of HTML documentation and put it into `doc/`
+#   * build-stage$(stage)-$(crate) - Compile a crate in a specific stage
 #   * check-$(crate) - Test a crate, e.g. `check-std`
 #   * check-ref - Run the language reference tests
 #   * check-docs - Test the documentation examples
