@@ -271,6 +271,7 @@
 #![stable(feature = "rust1", since = "1.0.0")]
 
 use cmp;
+use convert::TryFrom;
 use core::str as core_str;
 use error as std_error;
 use fmt;
@@ -363,6 +364,31 @@ fn append_to_string<F>(buf: &mut String, f: F) -> Result<usize>
 //
 // Because we're extending the buffer with uninitialized data for trusted
 // readers, we need to make sure to truncate that if any of this panics.
+trait ReadToEndImpl {
+    fn read_to_end_impl(&mut self, buf: &mut Vec<u8>) -> Result<usize>;
+}
+
+impl<R> ReadToEndImpl for R where R: Read + ?Sized {
+    default fn read_to_end_impl(&mut self, buf: &mut Vec<u8>) -> Result<usize> {
+        read_to_end(self, buf)
+    }
+}
+
+impl<R> ReadToEndImpl for R where R: Seek + Read + ?Sized {
+    fn read_to_end_impl(&mut self, buf: &mut Vec<u8>) -> Result<usize> {
+        // Seek to the end to find the input size.
+        let cur = self.seek(SeekFrom::Current(0))?;
+        let end = self.seek(SeekFrom::End(0))?;
+        self.seek(SeekFrom::Start(cur))?;
+
+        // Pre-allocate enough buffer space for the whole input.
+        let Ok(len) = usize::try_from(end);
+        buf.reserve_exact(len);
+
+        read_to_end(self, buf)
+    }
+}
+
 fn read_to_end<R: Read + ?Sized>(r: &mut R, buf: &mut Vec<u8>) -> Result<usize> {
     let start_len = buf.len();
     let mut g = Guard { len: buf.len(), buf: buf };
@@ -580,7 +606,7 @@ pub trait Read {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> Result<usize> {
-        read_to_end(self, buf)
+        self.read_to_end_impl(buf)
     }
 
     /// Read all bytes until EOF in this source, placing them into `buf`.
@@ -627,7 +653,7 @@ pub trait Read {
         // To prevent extraneously checking the UTF-8-ness of the entire buffer
         // we pass it to our hardcoded `read_to_end` implementation which we
         // know is guaranteed to only read data into the end of the buffer.
-        append_to_string(buf, |b| read_to_end(self, b))
+        append_to_string(buf, |b| self.read_to_end_impl(b))
     }
 
     /// Read the exact number of bytes required to fill `buf`.
