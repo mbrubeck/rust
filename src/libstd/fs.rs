@@ -246,8 +246,12 @@ pub struct DirBuilder {
 /// ```
 #[unstable(feature = "fs_read_write", issue = "46588")]
 pub fn read<P: AsRef<Path>>(path: P) -> io::Result<Vec<u8>> {
-    let mut bytes = Vec::new();
-    File::open(path)?.read_to_end(&mut bytes)?;
+    // Allocate one extra byte so the buffer doesn't need to grow before the final `read` call at
+    // the end of the file.  Don't worry about `usize` overflow because this will fail anyway if
+    // the file doesn't fit into memory.
+    let mut bytes = Vec::with_capacity(metadata(&path)?.len() as usize + 1);
+
+    File::open(&path)?.read_to_end(&mut bytes)?;
     Ok(bytes)
 }
 
@@ -287,8 +291,12 @@ pub fn read<P: AsRef<Path>>(path: P) -> io::Result<Vec<u8>> {
 /// ```
 #[unstable(feature = "fs_read_write", issue = "46588")]
 pub fn read_string<P: AsRef<Path>>(path: P) -> io::Result<String> {
-    let mut string = String::new();
-    File::open(path)?.read_to_string(&mut string)?;
+    // Allocate one extra byte so the buffer doesn't need to grow before the final `read` call at
+    // the end of the file.  Don't worry about `usize` overflow because this will fail anyway if
+    // the file doesn't fit into memory.
+    let mut string = String::with_capacity(metadata(&path)?.len() as usize + 1);
+
+    File::open(&path)?.read_to_string(&mut string)?;
     Ok(string)
 }
 
