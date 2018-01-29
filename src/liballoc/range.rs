@@ -123,6 +123,53 @@ impl<T> RangeArgument<T> for RangeToInclusive<T> {
     }
 }
 
+impl<'a, T> RangeArgument<T> for RangeFrom<&'a T> {
+    fn start(&self) -> Bound<&T> {
+        Included(self.start)
+    }
+    fn end(&self) -> Bound<&T> {
+        Unbounded
+    }
+}
+
+impl<'a, T> RangeArgument<T> for RangeTo<&'a T> {
+    fn start(&self) -> Bound<&T> {
+        Unbounded
+    }
+    fn end(&self) -> Bound<&T> {
+        Excluded(self.end)
+    }
+}
+
+impl<'a, T> RangeArgument<T> for Range<&'a T> {
+    fn start(&self) -> Bound<&T> {
+        Included(self.start)
+    }
+    fn end(&self) -> Bound<&T> {
+        Excluded(self.end)
+    }
+}
+
+#[unstable(feature = "inclusive_range", reason = "recently added, follows RFC", issue = "28237")]
+impl<'a, T> RangeArgument<T> for RangeInclusive<&'a T> {
+    fn start(&self) -> Bound<&T> {
+        Included(self.start)
+    }
+    fn end(&self) -> Bound<&T> {
+        Included(self.end)
+    }
+}
+
+#[unstable(feature = "inclusive_range", reason = "recently added, follows RFC", issue = "28237")]
+impl<'a, T> RangeArgument<T> for RangeToInclusive<&'a T> {
+    fn start(&self) -> Bound<&T> {
+        Unbounded
+    }
+    fn end(&self) -> Bound<&T> {
+        Included(self.end)
+    }
+}
+
 impl<T> RangeArgument<T> for (Bound<T>, Bound<T>) {
     fn start(&self) -> Bound<&T> {
         match *self {
