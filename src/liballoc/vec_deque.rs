@@ -22,7 +22,7 @@ use core::fmt;
 use core::iter::{repeat, FromIterator, FusedIterator};
 use core::mem;
 use core::ops::Bound::{Excluded, Included, Unbounded};
-use core::ops::{Index, IndexMut, RangeBounds};
+use core::ops::{Index, IndexMut, RangeBounds, Try};
 use core::ptr;
 use core::ptr::NonNull;
 use core::slice;
@@ -2028,12 +2028,13 @@ impl<'a, T> Iterator for Iter<'a, T> {
         (len, Some(len))
     }
 
-    fn fold<Acc, F>(self, mut accum: Acc, mut f: F) -> Acc
-        where F: FnMut(Acc, Self::Item) -> Acc
+    #[inline]
+    fn try_fold<B, F, R>(&mut self, init: B, mut f: F) -> R where
+        Self: Sized, F: FnMut(B, Self::Item) -> R, R: Try<Ok=B>
     {
         let (front, back) = RingSlices::ring_slices(self.ring, self.head, self.tail);
-        accum = front.iter().fold(accum, &mut f);
-        back.iter().fold(accum, &mut f)
+        let accum = front.iter().try_fold(init, &mut f)?;
+        back.iter().try_fold(accum, &mut f)
     }
 }
 
@@ -2048,12 +2049,13 @@ impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
         unsafe { Some(self.ring.get_unchecked(self.head)) }
     }
 
-    fn rfold<Acc, F>(self, mut accum: Acc, mut f: F) -> Acc
-        where F: FnMut(Acc, Self::Item) -> Acc
+    #[inline]
+    fn try_rfold<B, F, R>(&mut self, init: B, mut f: F) -> R where
+        Self: Sized, F: FnMut(B, Self::Item) -> R, R: Try<Ok=B>
     {
         let (front, back) = RingSlices::ring_slices(self.ring, self.head, self.tail);
-        accum = back.iter().rfold(accum, &mut f);
-        front.iter().rfold(accum, &mut f)
+        let accum = back.iter().try_rfold(init, &mut f)?;
+        front.iter().try_rfold(accum, &mut f)
     }
 }
 

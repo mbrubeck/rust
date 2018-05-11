@@ -115,6 +115,7 @@
 #![feature(str_internals)]
 #![feature(trusted_len)]
 #![feature(try_reserve)]
+#![feature(try_trait)]
 #![feature(unboxed_closures)]
 #![feature(unicode_internals)]
 #![feature(unsize)]
