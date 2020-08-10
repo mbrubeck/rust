@@ -1240,8 +1240,6 @@ dependencies = [
 [[package]]
 name = "hashbrown"
 version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e91b62f79061a0bc2e046024cb7ba44b08419ed238ecbd9adbd787434b9e8c25"
 dependencies = [
  "autocfg",
  "compiler_builtins",
