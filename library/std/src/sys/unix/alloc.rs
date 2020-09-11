@@ -6,7 +6,7 @@ use crate::sys_common::alloc::{realloc_fallback, MIN_ALIGN};
 unsafe impl GlobalAlloc for System {
     #[inline]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        // jemalloc provides alignment less than MIN_ALIGN for small allocations.
+        // malloc provides alignment less than MIN_ALIGN for small allocations.
         // So only rely on MIN_ALIGN if size >= align.
         // Also see <https://github.com/rust-lang/rust/issues/45955> and
         // <https://github.com/rust-lang/rust/issues/62251#issuecomment-507580914>.
